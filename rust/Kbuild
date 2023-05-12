@@ -1,0 +1,3 @@
+# rust_flags = -Z branch-protection=pac-ret,leaf
+
+obj-m = dmesg_heartbeat.o
