@@ -113,6 +113,11 @@ I say fuck it and combine the two:
 make -C rust KDIR=~/linux-build; make -C rust
 ```
 
+Why is that, you ask? No upstream Rust version can build both kernel
+and out-of-tree modules, unless your build and install paths match:
+
+* https://bugs.launchpad.net/ubuntu/+source/rustc-1.62/+bug/2011355
+
 To insert the module:
 
 ```
