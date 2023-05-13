@@ -47,7 +47,7 @@ impl Timer {
 
     fn arm(timer: *mut bindings::timer_list) {
         let jiffies = unsafe { bindings::jiffies };
-        let expiration = jiffies + bindings::HZ as u64 * INTERVAL_SECONDS;
+        let expiration = jiffies + bindings::CONFIG_HZ as u64 * INTERVAL_SECONDS;
 
         unsafe {
             bindings::mod_timer(timer, expiration);

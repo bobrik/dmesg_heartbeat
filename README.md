@@ -110,14 +110,11 @@ sudo insmod c/dmesg_heartbeat.ko
 You should see these pop up in dmesg:
 
 ```
-ivan@vm:~$ sudo dmesg -T | tail -n3
-[Fri May 12 04:51:01 2023] dmesg_heartbeat: 🫀
-[Fri May 12 04:51:01 2023] dmesg_heartbeat: 🫀
-[Fri May 12 04:51:02 2023] dmesg_heartbeat: 🫀
+ivan@vm:~/projects/printk_heartbeat$ sudo dmesg -T | tail -n3
+[Sat May 13 02:39:09 2023] dmesg_heartbeat: 🫀
+[Sat May 13 02:39:14 2023] dmesg_heartbeat: 🫀
+[Sat May 13 02:39:19 2023] dmesg_heartbeat: 🫀
 ```
-
-On my VM I have `CONFIG_HZ=1000`, but `bindings::HZ` is 100 for some reason,
-so the timer runs 10x faster than it should.
 
 There's also the name of the module present, which Rust macro adds for some
 reason when calling `pr_info!()` macro. In C `pr_info` doesn't do this.
