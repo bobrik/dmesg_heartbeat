@@ -48,9 +48,11 @@ On Ubuntu Lunar Lobster things might work a little easier:
 
 * https://discourse.ubuntu.com/t/ubuntu-kernel-is-getting-rusty-in-lunar/34977
 
-I'm using Linux v6.4-rc1 and I needed a few patches for that:
+I'm using Linux v6.4-rc1 on Debian and I needed a few patches for that:
 
 * [`8fac97511408`](https://github.com/bobrik/linux/commit/8fac97511408) rust: enable allocator_api to allow Box usage
+* [`98a3a5c4bf2d`](https://github.com/bobrik/linux/commit/98a3a5c4bf2d) rust: do not fail on stabilized features
+* [`a053ba6b56c8`](https://github.com/bobrik/linux/commit/a053ba6b56c8) rust: include in deb package for linux-headers
 
 If you are running on aarch64, you'll also need the following (in order):
 
@@ -60,15 +62,19 @@ If you are running on aarch64, you'll also need the following (in order):
 * [`0c078d5cca69`](https://github.com/bobrik/linux/commit/0c078d5cca69) arm64: rust: add missing BINDGEN_TARGET_arm64 in rust/Makefile
 
 You will need to use a specific version of Rust, the same one the kernel was
-built with. For Linux v6.4-rc1 that's v1.62.0. Same goes for bindgen v0.56.0.
+built with. For Linux v6.4-rc1 that's v1.64.0. Same goes for bindgen v0.56.0.
 To make this happen with already installed Rust via `rustup`:
 
 ```
-rustup toolchain add 1.62.0-aarch64-unknown-linux-gnu
-rustup default 1.62.0-aarch64-unknown-linux-gnu
+rustup toolchain add 1.64.0-aarch64-unknown-linux-gnu
+rustup default 1.64.0-aarch64-unknown-linux-gnu
 ```
 
 Adjust the command above if you have a different host architecture.
+
+You are originally supposed to build it with Rust v1.62, but it has issues:
+
+* https://bugs.launchpad.net/ubuntu/+source/rustc-1.62/+bug/2011355
 
 ```
 cargo install --locked --version 0.56.0 bindgen
@@ -80,43 +86,20 @@ You'll also need `rust-src` component:
 rustup component add rust-src
 ```
 
-For some reason this is still not enough and I'm getting:
+If you try building the module:
 
 ```
-error[E0463]: can't find crate for `core`
-  |
-  = note: the `target-7507245619590736499` target may not be installed
-  = help: consider downloading the target with `rustup target add target-7507245619590736499`
-  = help: consider building the standard library from source with `cargo build -Zbuild-std`
+make -C rust
 ```
 
-I can `make prepare` a kernel and use that rather than `linux-headers`
-and it still breaks, but in a different way:
+There will be an error, because for some reason it tries to create a file
+in the system header directory. You'll just have to let it:
 
 ```
-ERROR: modpost: "_RNvNtNtCsfATHBUcknU9_6kernel5print14format_strings4INFO" [/home/ivan/projects/printk_heartbeat/rust/dmesg_heartbeat.ko] undefined!
-ERROR: modpost: "_RNvNtCsfATHBUcknU9_6kernel5print11call_printk" [/home/ivan/projects/printk_heartbeat/rust/dmesg_heartbeat.ko] undefined!
-ERROR: modpost: "jiffies" [/home/ivan/projects/printk_heartbeat/rust/dmesg_heartbeat.ko] undefined!
-ERROR: modpost: "mod_timer" [/home/ivan/projects/printk_heartbeat/rust/dmesg_heartbeat.ko] undefined!
-ERROR: modpost: "_RNvNtCs3yuwAp0waWO_4core9panicking5panic" [/home/ivan/projects/printk_heartbeat/rust/dmesg_heartbeat.ko] undefined!
-ERROR: modpost: "timer_delete_sync" [/home/ivan/projects/printk_heartbeat/rust/dmesg_heartbeat.ko] undefined!
-ERROR: modpost: "__rust_alloc" [/home/ivan/projects/printk_heartbeat/rust/dmesg_heartbeat.ko] undefined!
-ERROR: modpost: "init_timer_key" [/home/ivan/projects/printk_heartbeat/rust/dmesg_heartbeat.ko] undefined!
-ERROR: modpost: "_RNvNtCs3yuwAp0waWO_4core6result13unwrap_failed" [/home/ivan/projects/printk_heartbeat/rust/dmesg_heartbeat.ko] undefined!
-ERROR: modpost: "_RNvMNtCsfATHBUcknU9_6kernel5errorNtB2_5Error8to_errno" [/home/ivan/projects/printk_heartbeat/rust/dmesg_heartbeat.ko] undefined!
-WARNING: modpost: suppressed 2 unresolved symbol warnings because there were too many)
+sudo chown $(id -u) /usr/src/linux-headers-$(uname -r)/
 ```
 
-I say fuck it and combine the two:
-
-```
-make -C rust KDIR=~/linux-build; make -C rust
-```
-
-Why is that, you ask? No upstream Rust version can build both kernel
-and out-of-tree modules, unless your build and install paths match:
-
-* https://bugs.launchpad.net/ubuntu/+source/rustc-1.62/+bug/2011355
+It should build successfully after that.
 
 To insert the module:
 
