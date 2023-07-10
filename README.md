@@ -48,33 +48,27 @@ On Ubuntu Lunar Lobster things might work a little easier:
 
 * https://discourse.ubuntu.com/t/ubuntu-kernel-is-getting-rusty-in-lunar/34977
 
-I'm using Linux v6.4-rc1 on Debian and I needed a few patches for that:
+I'm using Linux v6.5-rc1 on Debian and I needed a few patches for that:
 
-* [`8fac97511408`](https://github.com/bobrik/linux/commit/8fac97511408) rust: enable allocator_api to allow Box usage
-* [`98a3a5c4bf2d`](https://github.com/bobrik/linux/commit/98a3a5c4bf2d) rust: do not fail on stabilized features
-* [`a053ba6b56c8`](https://github.com/bobrik/linux/commit/a053ba6b56c8) rust: include in deb package for linux-headers
+* [`8fac97511408`](https://github.com/bobrik/linux/commit/1f8bdceaca91) rust: enable allocator_api to allow Box usage
+* [`a053ba6b56c8`](https://github.com/bobrik/linux/commit/6bee396aee4c) rust: include in deb package for linux-headers
 
 If you are running on aarch64, you'll also need the following (in order):
 
 * [`dd50b8163346`](https://github.com/bobrik/linux/commit/dd50b8163346) arm64: rust: Enable Rust support for AArch64
 * [`02d425fa78f6`](https://github.com/bobrik/linux/commit/02d425fa78f6) arm64: rust: Enable PAC support for Rust
-* [`84b4e37ce972`](https://github.com/bobrik/linux/commit/84b4e37ce972) arm64: rust: Disable neon and fp target features
 * [`0c078d5cca69`](https://github.com/bobrik/linux/commit/0c078d5cca69) arm64: rust: add missing BINDGEN_TARGET_arm64 in rust/Makefile
 
 You will need to use a specific version of Rust, the same one the kernel was
-built with. For Linux v6.4-rc1 that's v1.64.0. Same goes for bindgen v0.56.0.
+built with. For Linux v6.5-rc1 that's v1.68.2. Same goes for bindgen v0.56.0.
 To make this happen with already installed Rust via `rustup`:
 
 ```
-rustup toolchain add 1.64.0-aarch64-unknown-linux-gnu
-rustup default 1.64.0-aarch64-unknown-linux-gnu
+rustup toolchain add 1.68.2-aarch64-unknown-linux-gnu
+rustup default 1.68.2-aarch64-unknown-linux-gnu
 ```
 
 Adjust the command above if you have a different host architecture.
-
-You are originally supposed to build it with Rust v1.62, but it has issues:
-
-* https://bugs.launchpad.net/ubuntu/+source/rustc-1.62/+bug/2011355
 
 ```
 cargo install --locked --version 0.56.0 bindgen
