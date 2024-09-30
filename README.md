@@ -48,30 +48,24 @@ On Ubuntu Lunar Lobster things might work a little easier:
 
 * https://discourse.ubuntu.com/t/ubuntu-kernel-is-getting-rusty-in-lunar/34977
 
-I'm using Linux v6.5-rc1 on Debian and I needed a few patches for that:
+I'm using Linux v6.12-rc1 on Debian and I needed a few patches for that:
 
 * [`8fac97511408`](https://github.com/bobrik/linux/commit/1f8bdceaca91) rust: enable allocator_api to allow Box usage
-* [`a053ba6b56c8`](https://github.com/bobrik/linux/commit/6bee396aee4c) rust: include in deb package for linux-headers
-
-If you are running on aarch64, you'll also need the following (in order):
-
-* [`dd50b8163346`](https://github.com/bobrik/linux/commit/dd50b8163346) arm64: rust: Enable Rust support for AArch64
-* [`02d425fa78f6`](https://github.com/bobrik/linux/commit/02d425fa78f6) arm64: rust: Enable PAC support for Rust
-* [`0c078d5cca69`](https://github.com/bobrik/linux/commit/0c078d5cca69) arm64: rust: add missing BINDGEN_TARGET_arm64 in rust/Makefile
+* [`a053ba6b56c8`](https://github.com/bobrik/linux/commit/0c59f006527c) rust: include in deb package for linux-headers
 
 You will need to use a specific version of Rust, the same one the kernel was
-built with. For Linux v6.5-rc1 that's v1.68.2. Same goes for bindgen v0.56.0.
+built with. For Linux v6.12-rc1 that's v1.78.0. Same goes for bindgen v0.69.4.
 To make this happen with already installed Rust via `rustup`:
 
 ```
-rustup toolchain add 1.68.2-aarch64-unknown-linux-gnu
-rustup default 1.68.2-aarch64-unknown-linux-gnu
+rustup toolchain add 1.78.0-aarch64-unknown-linux-gnu
+rustup default 1.78.0-aarch64-unknown-linux-gnu
 ```
 
 Adjust the command above if you have a different host architecture.
 
 ```
-cargo install --locked --version 0.56.0 bindgen
+cargo install --locked --version 0.69.4 bindgen
 ```
 
 You'll also need `rust-src` component:
@@ -80,25 +74,16 @@ You'll also need `rust-src` component:
 rustup component add rust-src
 ```
 
-If you try building the module:
+Then you can build the module:
 
 ```
 make -C rust
 ```
 
-There will be an error, because for some reason it tries to create a file
-in the system header directory. You'll just have to let it:
-
-```
-sudo chown $(id -u) /usr/src/linux-headers-$(uname -r)/
-```
-
-It should build successfully after that.
-
 To insert the module:
 
 ```
-sudo insmod c/dmesg_heartbeat.ko
+sudo insmod rust/dmesg_heartbeat.ko
 ```
 
 You should see these pop up in dmesg:

@@ -74,6 +74,7 @@ impl Drop for Timer {
 ///
 /// Trust me bro, it's as safe as it gets here.
 unsafe impl Sync for Timer {}
+unsafe impl Send for Timer {}
 
 impl kernel::Module for RustOutOfTree {
     fn init(_module: &'static ThisModule) -> Result<Self> {
