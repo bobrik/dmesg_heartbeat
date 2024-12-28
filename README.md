@@ -48,9 +48,8 @@ On Ubuntu Lunar Lobster things might work a little easier:
 
 * https://discourse.ubuntu.com/t/ubuntu-kernel-is-getting-rusty-in-lunar/34977
 
-I'm using Linux v6.12-rc1 on Debian and I needed a few patches for that:
+I'm using Linux v6.13-rc4 on Debian and I needed a few patches for that:
 
-* [`8fac97511408`](https://github.com/bobrik/linux/commit/1f8bdceaca91) rust: enable allocator_api to allow Box usage
 * [`a053ba6b56c8`](https://github.com/bobrik/linux/commit/0c59f006527c) rust: include in deb package for linux-headers
 
 You will need to use a specific version of Rust, the same one the kernel was

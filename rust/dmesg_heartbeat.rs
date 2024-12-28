@@ -19,12 +19,12 @@ struct RustOutOfTree {
 }
 
 struct Timer {
-    inner: Box<bindings::timer_list>,
+    inner: KBox<bindings::timer_list>,
 }
 
 impl Timer {
     fn new() -> Self {
-        let inner = Box::try_new_uninit().unwrap();
+        let inner = KBox::<bindings::timer_list>::new_uninit(GFP_KERNEL).unwrap();
         let mut inner = unsafe { inner.assume_init() };
 
         unsafe {
