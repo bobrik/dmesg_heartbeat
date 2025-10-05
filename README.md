@@ -44,36 +44,19 @@ at a fixed address, so very little can go wrong (and nothing should).
 
 ## Rust version
 
-On Ubuntu Lunar Lobster things might work a little easier:
-
-* https://discourse.ubuntu.com/t/ubuntu-kernel-is-getting-rusty-in-lunar/34977
-
-I'm using Linux v6.13-rc4 on Debian and I needed a few patches for that:
+I'm using Linux v6.17 on Debian and I needed a single patch for that:
 
 * [`a053ba6b56c8`](https://github.com/bobrik/linux/commit/0c59f006527c) rust: include in deb package for linux-headers
 
+On Ubuntu this stuff is packaged in `linux-lib-rust` (24.04 noble, 24.10 oracular)
+or in `linux-headers` (starting with 25.04 plucky). For others you need to find
+whatever package includes `libkernel.rmeta` on your distribution.
+
 You will need to use a specific version of Rust, the same one the kernel was
-built with. For Linux v6.12-rc1 that's v1.78.0. Same goes for bindgen v0.69.4.
-To make this happen with already installed Rust via `rustup`:
+built with. This is taken care of by `Makefile`, which automatically generates
+the `rust-toolchain.toml` file to be used by `rustup`.
 
-```
-rustup toolchain add 1.78.0-aarch64-unknown-linux-gnu
-rustup default 1.78.0-aarch64-unknown-linux-gnu
-```
-
-Adjust the command above if you have a different host architecture.
-
-```
-cargo install --locked --version 0.69.4 bindgen
-```
-
-You'll also need `rust-src` component:
-
-```
-rustup component add rust-src
-```
-
-Then you can build the module:
+All you need to do to build the module:
 
 ```
 make -C rust

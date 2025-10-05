@@ -1,6 +1,8 @@
 KDIR = /lib/modules/$(shell uname -r)/build
 
-default:
+.DEFAULT_GOAL := build
+
+build:
 	make -C $(KDIR) M=$$PWD
 
 clean:

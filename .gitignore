@@ -4,3 +4,4 @@
 */*.o
 */Module.symvers
 */modules.order
+rust/rust-toolchain.toml

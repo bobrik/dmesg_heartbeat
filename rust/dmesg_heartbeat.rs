@@ -3,12 +3,12 @@
 use core::ptr::null_mut;
 use kernel::{bindings, prelude::*};
 
-const INTERVAL_SECONDS: u64 = 5;
+const INTERVAL_SECONDS: usize = 5;
 
 module! {
     type: RustOutOfTree,
     name: "dmesg_heartbeat",
-    author: "Ivan Babrou <dmesg_heartbeat@ivan.computer>",
+    authors: ["Ivan Babrou <dmesg_heartbeat@ivan.computer>"],
     description: "Print heartbeat into dmesg on a timer",
     license: "GPL",
 }
@@ -16,6 +16,15 @@ module! {
 struct RustOutOfTree {
     #[allow(dead_code)]
     timer: Timer,
+}
+
+impl RustOutOfTree {
+    fn new() -> RustOutOfTree {
+        let mut timer = Timer::new();
+        timer.setup();
+
+        Self { timer }
+    }
 }
 
 struct Timer {
@@ -28,7 +37,7 @@ impl Timer {
         let mut inner = unsafe { inner.assume_init() };
 
         unsafe {
-            bindings::init_timer_key(
+            bindings::timer_init_key(
                 &mut *inner as *mut _,
                 Some(Self::timer_callback),
                 0,
@@ -47,7 +56,7 @@ impl Timer {
 
     fn arm(timer: *mut bindings::timer_list) {
         let jiffies = unsafe { bindings::jiffies };
-        let expiration = jiffies + bindings::CONFIG_HZ as u64 * INTERVAL_SECONDS;
+        let expiration = jiffies + bindings::CONFIG_HZ as usize * INTERVAL_SECONDS;
 
         unsafe {
             bindings::mod_timer(timer, expiration);
@@ -78,9 +87,6 @@ unsafe impl Send for Timer {}
 
 impl kernel::Module for RustOutOfTree {
     fn init(_module: &'static ThisModule) -> Result<Self> {
-        let mut timer = Timer::new();
-        timer.setup();
-
-        Ok(RustOutOfTree { timer })
+        Ok(RustOutOfTree::new())
     }
 }
